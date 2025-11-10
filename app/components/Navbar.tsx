@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import MobileMenu from "./MobileMenu";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -49,9 +50,12 @@ export default function Navbar() {
           </li>
         </ul>
 
-        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2">
-          Get Started
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button className="hidden md:block bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2">
+            Get Started
+          </Button>
+          <MobileMenu />
+        </div>
       </div>
     </nav>
   );

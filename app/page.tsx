@@ -14,6 +14,9 @@ import {
 import { useAnimationConfig } from '@/hooks/useReducedMotion';
 import { useActiveSection } from '@/hooks/useOptimizedScroll';
 
+// Import skeleton loaders for CLS prevention
+import SkeletonLoader from '@/components/ui/SkeletonLoader';
+
 // Import animation utilities
 import {
   fadeInUp,
@@ -36,19 +39,45 @@ import {
   reducedMotionFadeIn,
 } from '@/utils/animationVariants';
 
-// Lazy load heavy sections for better initial page load
+// Lazy load heavy sections for better initial page load with proper loading states
 const PricingSection = dynamic(() => import('@/components/sections/PricingSection'), {
-  loading: () => <div className="py-24 px-4 min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div></div>,
+  loading: () => (
+    <div className="py-24 px-4 min-h-screen flex items-center justify-center">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="text-center mb-16">
+          <SkeletonLoader type="text" lines={2} className="max-w-2xl mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <SkeletonLoader type="card" height="400px" />
+          <SkeletonLoader type="card" height="400px" />
+          <SkeletonLoader type="card" height="400px" />
+        </div>
+      </div>
+    </div>
+  ),
   ssr: true, // Still render on server for SEO
 });
 
 const TestimonialsSection = dynamic(() => import('@/components/sections/TestimonialsSection'), {
-  loading: () => <div className="py-24 px-4 min-h-[400px] flex items-center justify-center bg-slate-900"><div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div></div>,
+  loading: () => (
+    <div className="py-24 px-4 min-h-[400px] flex items-center justify-center bg-slate-900">
+      <div className="max-w-7xl mx-auto w-full">
+        <div className="text-center mb-16">
+          <SkeletonLoader type="text" lines={2} className="max-w-2xl mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          <SkeletonLoader type="testimonial" />
+          <SkeletonLoader type="testimonial" />
+          <SkeletonLoader type="testimonial" />
+        </div>
+      </div>
+    </div>
+  ),
   ssr: true,
 });
 
 const FooterSection = dynamic(() => import('@/components/sections/FooterSection'), {
-  loading: () => <div className="py-12 bg-slate-900 min-h-[200px]"></div>,
+  loading: () => <div className="py-12 bg-slate-900 min-h-[200px]" style={{ minHeight: '400px' }}></div>,
   ssr: true,
 });
 
@@ -94,18 +123,19 @@ export default function EnhancedLandingPage() {
         style={{ scaleX }}
       />
 
-      {/* Enhanced Navbar */}
-      <nav className="fixed w-full z-40 backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border-b border-slate-200/50 dark:border-slate-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      {/* Enhanced Navbar - Fixed height to prevent CLS */}
+      <nav className="fixed w-full z-40 backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border-b border-slate-200/50 dark:border-slate-700/50 h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="flex justify-between items-center h-full">
             <motion.div 
               className="flex items-center gap-2"
               whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent whitespace-nowrap">
                 TechVista
               </span>
             </motion.div>
@@ -200,23 +230,23 @@ export default function EnhancedLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* Enhanced Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden">
+      {/* Enhanced Hero Section - Optimized for LCP and CLS */}
+      <section id="home" className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden hero-container">
         {/* Animated Background - Only render on desktop with animations enabled */}
         {animationConfig.enableScrollAnimations && (
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
             <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-700" />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10 w-full">
           <motion.div
             variants={heroVariant}
             initial="initial"
             animate="animate"
-            style={{ willChange: 'transform, opacity' }}
+            style={{ willChange: animationConfig.shouldAnimate ? 'transform, opacity' : 'auto' }}
           >
             <motion.div
               variants={scaleIn}
@@ -224,27 +254,28 @@ export default function EnhancedLandingPage() {
               animate="animate"
               transition={{ delay: 0.2 * animationConfig.durationMultiplier }}
               className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-full mb-6"
+              style={{ willChange: animationConfig.shouldAnimate ? 'transform, opacity' : 'auto' }}
             >
               <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                 ✨ Trusted by 500+ Companies
               </span>
             </motion.div>
 
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            {/* Hero heading - Critical for LCP */}
+            <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight" style={{ minHeight: '180px' }}>
+              <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent block">
                 Transform Your
               </span>
-              <br />
-              <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 bg-clip-text text-transparent block">
                 Digital Presence
               </span>
             </h1>
 
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 leading-relaxed" style={{ minHeight: '56px' }}>
               Build lightning-fast, responsive websites that convert visitors into loyal customers. Experience the power of modern web technologies.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8" style={{ minHeight: '56px' }}>
               <motion.button
                 {...hoverVariant}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2 group"

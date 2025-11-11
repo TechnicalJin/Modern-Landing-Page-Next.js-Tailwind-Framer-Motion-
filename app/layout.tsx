@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Inter, Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
-// Primary font with optimized loading
+// Primary font with optimized loading for LCP
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap", // Ensures text remains visible during font loading
-  preload: true,
+  display: "swap", // Ensures text remains visible during font loading (FOUT strategy)
+  preload: true, // Preload for hero section text
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
-  adjustFontFallback: true, // Minimizes layout shift
+  adjustFontFallback: true, // Minimizes layout shift during font loading
+  weight: ["400", "500", "600", "700", "800"], // Specify weights to reduce font file size
 });
 
 const geistSans = Geist({
@@ -109,20 +111,108 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* DNS Prefetch for external resources */}
+        {/* Critical Resource Hints for LCP Optimization */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Preload critical fonts for faster LCP */}
+        <link
+          rel="preload"
+          href="/_next/static/media/inter-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         
         {/* Viewport and theme */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="theme-color" content="#1E40AF" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
+        
+        {/* Inline Critical CSS for Above-the-Fold Content (Reduces LCP) */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical styles for hero section - prevents CLS */
+            body { margin: 0; padding: 0; min-height: 100vh; }
+            .hero-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+            
+            /* Navbar fixed height to prevent CLS */
+            nav { height: 64px; position: fixed; top: 0; width: 100%; z-index: 40; }
+            
+            /* Reserve space for images to prevent CLS */
+            img[data-hero] { aspect-ratio: 16/9; object-fit: cover; }
+            
+            /* Prevent flash of unstyled content */
+            html { font-family: system-ui, -apple-system, sans-serif; }
+            
+            /* Critical animation performance */
+            * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+            
+            /* Loading state to prevent FOUC */
+            .loading { opacity: 0; }
+            .loaded { opacity: 1; transition: opacity 0.3s ease-in; }
+          `
+        }} />
       </head>
       <body
-        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white dark:bg-gray-950 transition-colors`}
+        className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white dark:bg-gray-950 transition-colors loaded`}
       >
         {children}
+        
+        {/* Defer non-critical analytics scripts for better FID */}
+        <Script
+          id="analytics"
+          strategy="lazyOnload"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Analytics script placeholder
+              // Replace with your actual analytics (Google Analytics, Plausible, etc.)
+              console.log('Analytics loaded lazily for better FID');
+            `
+          }}
+        />
+        
+        {/* Web Vitals reporting for monitoring */}
+        <Script
+          id="web-vitals"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Web Vitals monitoring
+              if ('PerformanceObserver' in window) {
+                // Track LCP
+                const lcpObserver = new PerformanceObserver((list) => {
+                  const entries = list.getEntries();
+                  const lastEntry = entries[entries.length - 1];
+                  console.log('LCP:', lastEntry.renderTime || lastEntry.loadTime);
+                });
+                lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+                
+                // Track FID
+                const fidObserver = new PerformanceObserver((list) => {
+                  list.getEntries().forEach((entry) => {
+                    console.log('FID:', entry.processingStart - entry.startTime);
+                  });
+                });
+                fidObserver.observe({ entryTypes: ['first-input'] });
+                
+                // Track CLS
+                let clsValue = 0;
+                const clsObserver = new PerformanceObserver((list) => {
+                  list.getEntries().forEach((entry) => {
+                    if (!entry.hadRecentInput) {
+                      clsValue += entry.value;
+                      console.log('CLS:', clsValue);
+                    }
+                  });
+                });
+                clsObserver.observe({ entryTypes: ['layout-shift'] });
+              }
+            `
+          }}
+        />
       </body>
     </html>
   );

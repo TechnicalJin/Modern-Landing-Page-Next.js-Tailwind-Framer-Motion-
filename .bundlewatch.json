@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "path": ".next/static/chunks/*.js",
+      "maxSize": "150kb",
+      "compression": "gzip"
+    },
+    {
+      "path": ".next/static/css/*.css",
+      "maxSize": "50kb",
+      "compression": "gzip"
+    },
+    {
+      "path": ".next/static/chunks/pages/*.js",
+      "maxSize": "200kb",
+      "compression": "gzip"
+    },
+    {
+      "path": ".next/static/chunks/app/page*.js",
+      "maxSize": "250kb",
+      "compression": "gzip"
+    }
+  ],
+  "ci": {
+    "trackBranches": [
+      "main",
+      "master",
+      "develop",
+      "feature/build-optimization"
+    ],
+    "repoBranchBase": "main"
+  },
+  "defaultCompression": "gzip",
+  "normalizeFilenames": "^.+[\\.\\-][a-z0-9]{8,}([\\.\\-].*)?\\.",
+  "reportSizes": true
+}

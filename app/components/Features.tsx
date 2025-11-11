@@ -52,18 +52,18 @@ export default function Features() {
   ];
   
   return (
-    <section id="features" className="py-20 px-8 bg-gray-50">
+    <section id="features" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto">
-        <MotionWrapper className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+        <MotionWrapper className="text-center mb-12 sm:mb-16">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
             Why Choose Us?
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
             We deliver exceptional web experiences with cutting-edge technology and best practices
           </p>
         </MotionWrapper>
 
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
@@ -75,21 +75,21 @@ export default function Features() {
                   }}
                   className="h-full"
                 >
-                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-0 shadow-md group">
+                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-0 shadow-md group dark:bg-gray-800 dark:border-gray-700">
                     <CardHeader>
                       <motion.div 
-                        className={`w-14 h-14 rounded-xl ${feature.bgColor} flex items-center justify-center mb-4 ${feature.color}`}
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl ${feature.bgColor} dark:bg-opacity-20 flex items-center justify-center mb-4 ${feature.color}`}
                         whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
                         transition={{ duration: 0.5 }}
                       >
-                        <Icon className="w-7 h-7" />
+                        <Icon className="w-6 h-6 sm:w-7 sm:h-7" />
                       </motion.div>
-                      <CardTitle className="text-xl mb-2 group-hover:text-indigo-600 transition-colors">
+                      <CardTitle className="text-lg sm:text-xl mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors dark:text-white">
                         {feature.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-gray-600 leading-relaxed">
+                      <CardDescription className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed">
                         {feature.desc}
                       </CardDescription>
                     </CardContent>

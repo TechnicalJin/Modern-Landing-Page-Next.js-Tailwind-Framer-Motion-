@@ -36,10 +36,10 @@ export default function BackToTop() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-40 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-colors"
+          className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white p-3 sm:p-3.5 rounded-full shadow-lg dark:shadow-indigo-900/50 transition-colors"
           aria-label="Back to top"
         >
-          <ArrowUp className="h-6 w-6" />
+          <ArrowUp className="h-5 w-5 sm:h-6 sm:w-6" />
         </motion.button>
       )}
     </AnimatePresence>

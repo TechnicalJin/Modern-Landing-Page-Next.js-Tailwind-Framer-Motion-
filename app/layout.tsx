@@ -4,6 +4,8 @@ import Script from "next/script";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { StructuredData } from "@/components/StructuredData";
+import { SkipToContent } from "@/components/SkipToContent";
 
 // Primary font with optimized loading for LCP
 const inter = Inter({
@@ -161,6 +163,13 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white dark:bg-gray-950 transition-colors loaded`}
       >
+        {/* Skip to main content for accessibility */}
+        <SkipToContent targetId="main-content" />
+        
+        {/* Structured Data for SEO */}
+        <StructuredData type="organization" />
+        <StructuredData type="website" />
+        
         <ToastProvider position="top-right" maxToasts={5}>
           <ProgressBar 
             position="top" 

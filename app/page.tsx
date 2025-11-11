@@ -136,7 +136,11 @@ export default function EnhancedLandingPage() {
       />
 
       {/* Enhanced Navbar - Fixed height to prevent CLS */}
-      <nav className="fixed w-full z-40 backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border-b border-slate-200/50 dark:border-slate-700/50 h-16">
+      <nav 
+        className="fixed w-full z-40 backdrop-blur-lg bg-white/70 dark:bg-slate-900/70 border-b border-slate-200/50 dark:border-slate-700/50 h-16"
+        role="navigation"
+        aria-label="Main navigation"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
           <div className="flex justify-between items-center h-full">
             <motion.div 
@@ -242,8 +246,14 @@ export default function EnhancedLandingPage() {
         )}
       </AnimatePresence>
 
-      {/* Enhanced Hero Section - Optimized for LCP and CLS */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden hero-container">
+      {/* Main Content */}
+      <main id="main-content" role="main">
+        {/* Enhanced Hero Section - Optimized for LCP and CLS */}
+        <section 
+          id="home" 
+          className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden hero-container"
+          aria-labelledby="hero-title"
+        >
         {/* Animated Background - Only render on desktop with animations enabled */}
         {animationConfig.enableScrollAnimations && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -274,7 +284,11 @@ export default function EnhancedLandingPage() {
             </motion.div>
 
             {/* Hero heading - Critical for LCP */}
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6 leading-tight" style={{ minHeight: '180px' }}>
+            <h1 
+              id="hero-title" 
+              className="text-5xl lg:text-7xl font-bold mb-6 leading-tight" 
+              style={{ minHeight: '180px' }}
+            >
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent block">
                 Transform Your
               </span>
@@ -294,9 +308,10 @@ export default function EnhancedLandingPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2 group"
+                aria-label="Start your free trial today"
               >
                 Start Free Trial
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
               </motion.button>
               
               <motion.button
@@ -429,7 +444,11 @@ export default function EnhancedLandingPage() {
       </section>
 
       {/* Enhanced Features Section */}
-      <section id="features" className="py-24 px-4 relative">
+      <section 
+        id="features" 
+        className="py-24 px-4 relative"
+        aria-labelledby="features-title"
+      >
         <div className="max-w-7xl mx-auto">
           <motion.div
             variants={heroVariant}
@@ -438,7 +457,7 @@ export default function EnhancedLandingPage() {
             {...viewportAnimationOptimized}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4">
+            <h2 id="features-title" className="text-4xl lg:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
                 Powerful Features for
               </span>
@@ -751,6 +770,7 @@ export default function EnhancedLandingPage() {
           </motion.div>
         </div>
       </section>
+      </main>
 
       {/* Lazy-loaded Footer */}
       <FooterSection />

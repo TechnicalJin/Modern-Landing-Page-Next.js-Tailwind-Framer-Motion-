@@ -296,7 +296,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
           >
             {label} {required && <span className="text-red-500">*</span>}
           </label>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {charCount}/{maxChars}
           </span>
         </div>

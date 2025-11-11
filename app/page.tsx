@@ -387,7 +387,7 @@ export default function EnhancedLandingPage() {
                       </div>
                       <div>
                         <div className="font-semibold text-slate-900 dark:text-white">Performance</div>
-                        <div className="text-sm text-slate-500">Lightning Fast</div>
+                        <div className="text-sm text-slate-500 dark:text-slate-400">Lightning Fast</div>
                       </div>
                     </div>
                     <div className="text-2xl font-bold text-green-500">98%</div>
@@ -422,7 +422,7 @@ export default function EnhancedLandingPage() {
                       >
                         <stat.icon className="w-6 h-6 mx-auto mb-1 text-blue-600 dark:text-cyan-400" />
                         <div className="text-lg font-bold text-slate-900 dark:text-white">{stat.value}</div>
-                        <div className="text-xs text-slate-500">{stat.label}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</div>
                       </motion.div>
                     ))}
                   </div>

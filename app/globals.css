@@ -1,9 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Smooth scrolling */
+/* Smooth scrolling with fallback for older browsers */
 html {
   scroll-behavior: smooth;
+}
+
+@supports not (scroll-behavior: smooth) {
+  html {
+    overflow-x: hidden;
+  }
+}
+
+/* Improve navbar z-index */
+nav {
+  z-index: 50 !important;
 }
 
 @custom-variant dark (&:is(.dark *));

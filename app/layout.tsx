@@ -6,6 +6,10 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { StructuredData } from "@/components/StructuredData";
 import { SkipToContent } from "@/components/SkipToContent";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ClientAnalytics } from "@/components/ClientAnalytics";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 // Primary font with optimized loading for LCP
 const inter = Inter({
@@ -163,6 +167,34 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white dark:bg-gray-950 transition-colors loaded`}
       >
+        {/* Noscript fallback for JS-disabled browsers */}
+        <noscript>
+          <div style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            backgroundColor: '#0F172A', 
+            color: 'white', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            flexDirection: 'column',
+            padding: '2rem',
+            textAlign: 'center',
+            zIndex: 9999
+          }}>
+            <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>JavaScript Required</h1>
+            <p style={{ maxWidth: '500px', lineHeight: '1.6' }}>
+              This website requires JavaScript to function properly. Please enable JavaScript in your browser settings and reload the page.
+            </p>
+            <p style={{ marginTop: '1rem', opacity: 0.7 }}>
+              For the best experience, we recommend using a modern browser like Chrome, Firefox, Safari, or Edge.
+            </p>
+          </div>
+        </noscript>
+        
         {/* Skip to main content for accessibility */}
         <SkipToContent targetId="main-content" />
         
@@ -170,68 +202,24 @@ export default function RootLayout({
         <StructuredData type="organization" />
         <StructuredData type="website" />
         
-        <ToastProvider position="top-right" maxToasts={5}>
-          <ProgressBar 
-            position="top" 
-            height={3} 
-            color="linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)"
-            smooth={true}
-          />
-          {children}
-        </ToastProvider>
-        
-        {/* Defer non-critical analytics scripts for better FID */}
-        <Script
-          id="analytics"
-          strategy="lazyOnload"
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Analytics script placeholder
-              // Replace with your actual analytics (Google Analytics, Plausible, etc.)
-              console.log('Analytics loaded lazily for better FID');
-            `
-          }}
-        />
-        
-        {/* Web Vitals reporting for monitoring */}
-        <Script
-          id="web-vitals"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Web Vitals monitoring
-              if ('PerformanceObserver' in window) {
-                // Track LCP
-                const lcpObserver = new PerformanceObserver((list) => {
-                  const entries = list.getEntries();
-                  const lastEntry = entries[entries.length - 1];
-                  console.log('LCP:', lastEntry.renderTime || lastEntry.loadTime);
-                });
-                lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-                
-                // Track FID
-                const fidObserver = new PerformanceObserver((list) => {
-                  list.getEntries().forEach((entry) => {
-                    console.log('FID:', entry.processingStart - entry.startTime);
-                  });
-                });
-                fidObserver.observe({ entryTypes: ['first-input'] });
-                
-                // Track CLS
-                let clsValue = 0;
-                const clsObserver = new PerformanceObserver((list) => {
-                  list.getEntries().forEach((entry) => {
-                    if (!entry.hadRecentInput) {
-                      clsValue += entry.value;
-                      console.log('CLS:', clsValue);
-                    }
-                  });
-                });
-                clsObserver.observe({ entryTypes: ['layout-shift'] });
-              }
-            `
-          }}
-        />
+        <ThemeProvider>
+          <ToastProvider position="top-right" maxToasts={5}>
+            <ProgressBar 
+              position="top" 
+              height={3} 
+              color="linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)"
+              smooth={true}
+            />
+            {children}
+            
+            {/* Vercel Analytics & Speed Insights */}
+            <Analytics />
+            <SpeedInsights />
+            
+            {/* Client-side analytics initialization */}
+            <ClientAnalytics />
+          </ToastProvider>
+        </ThemeProvider>
         
         {/* Service Worker Registration for PWA */}
         <Script

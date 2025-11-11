@@ -2,7 +2,8 @@
 /* eslint-disable react-hooks/refs */
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
@@ -89,7 +90,25 @@ const FooterSection = dynamic(() => import('@/components/sections/FooterSection'
 
 export default function EnhancedLandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Fix mobile menu scroll lock
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
   
   // Optimized scroll handling with IntersectionObserver
   const activeSection = useActiveSection(['home', 'features', 'process', 'pricing', 'testimonials']);
@@ -128,7 +147,7 @@ export default function EnhancedLandingPage() {
   const cardVariant = animationConfig.shouldSimplify ? cardHoverMobile : cardHover();
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50'}`}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 dark:bg-slate-900">
       {/* Scroll Progress */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-cyan-500 to-purple-600 origin-left z-50"
@@ -180,13 +199,16 @@ export default function EnhancedLandingPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </motion.button>
+              {mounted && (
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  aria-label="Toggle dark mode"
+                >
+                  {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </motion.button>
+              )}
               
               <motion.button
                 whileHover={{ scale: 1.05 }}

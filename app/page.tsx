@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
@@ -10,21 +10,30 @@ import {
   ChevronRight, CheckCircle
 } from 'lucide-react';
 
+// Import optimized hooks
+import { useAnimationConfig } from '@/hooks/useReducedMotion';
+import { useActiveSection } from '@/hooks/useOptimizedScroll';
+
 // Import animation utilities
 import {
   fadeInUp,
   fadeInRight,
   scaleIn,
-  floatingAnimation,
-  floatingWithRotation,
+  floatingOptimized,
   progressBar,
-  viewportAnimation,
+  viewportAnimationOptimized,
   cardHover,
   menuAnimation,
   backdropAnimation,
   scrollIndicator,
   statsAnimation,
   buttonHover,
+  getResponsiveVariant,
+  fadeInUpMobile,
+  fadeInRightMobile,
+  buttonHoverMobile,
+  cardHoverMobile,
+  reducedMotionFadeIn,
 } from '@/utils/animationVariants';
 
 // Lazy load heavy sections for better initial page load
@@ -46,27 +55,36 @@ const FooterSection = dynamic(() => import('@/components/sections/FooterSection'
 export default function EnhancedLandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
-  const { scrollYProgress } = useScroll();
   
+  // Optimized scroll handling with IntersectionObserver
+  const activeSection = useActiveSection(['home', 'features', 'process', 'pricing', 'testimonials']);
+  
+  // Animation configuration based on user preferences
+  const animationConfig = useAnimationConfig();
+  
+  // Scroll progress for header
+  const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['home', 'features', 'process', 'pricing', 'testimonials'];
-      const current = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
-      });
-      if (current) setActiveSection(current);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Get responsive animation variants
+  const heroVariant = getResponsiveVariant(
+    animationConfig.shouldSimplify,
+    !animationConfig.shouldAnimate,
+    fadeInUp,
+    fadeInUpMobile,
+    reducedMotionFadeIn
+  );
+
+  const featureVariant = getResponsiveVariant(
+    animationConfig.shouldSimplify,
+    !animationConfig.shouldAnimate,
+    fadeInRight,
+    fadeInRightMobile,
+    reducedMotionFadeIn
+  );
+
+  const hoverVariant = animationConfig.shouldSimplify ? buttonHoverMobile : buttonHover;
+  const cardVariant = animationConfig.shouldSimplify ? cardHoverMobile : cardHover();
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark bg-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50'}`}>
@@ -184,24 +202,27 @@ export default function EnhancedLandingPage() {
 
       {/* Enhanced Hero Section */}
       <section id="home" className="relative min-h-screen flex items-center justify-center px-4 pt-20 overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-700" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
+        {/* Animated Background - Only render on desktop with animations enabled */}
+        {animationConfig.enableScrollAnimations && (
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl animate-pulse delay-700" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          </div>
+        )}
 
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div
-            variants={fadeInUp}
+            variants={heroVariant}
             initial="initial"
             animate="animate"
+            style={{ willChange: 'transform, opacity' }}
           >
             <motion.div
               variants={scaleIn}
               initial="initial"
               animate="animate"
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2 * animationConfig.durationMultiplier }}
               className="inline-block px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-full mb-6"
             >
               <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
@@ -225,7 +246,7 @@ export default function EnhancedLandingPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <motion.button
-                {...buttonHover}
+                {...hoverVariant}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all flex items-center justify-center gap-2 group"
               >
                 Start Free Trial
@@ -233,7 +254,7 @@ export default function EnhancedLandingPage() {
               </motion.button>
               
               <motion.button
-                {...buttonHover}
+                {...hoverVariant}
                 className="px-8 py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg font-medium border-2 border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-cyan-500 transition-all flex items-center justify-center gap-2 group"
               >
                 <Play className="w-5 h-5" />
@@ -255,17 +276,19 @@ export default function EnhancedLandingPage() {
           </motion.div>
 
           <motion.div
-            variants={fadeInRight}
+            variants={featureVariant}
             initial="initial"
             animate="animate"
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.3 * animationConfig.durationMultiplier }}
             className="relative"
+            style={{ willChange: 'transform, opacity' }}
           >
             <div className="relative">
               {/* Main Card */}
               <motion.div
-                {...floatingAnimation(4, 20)}
+                {...(animationConfig.enableScrollAnimations ? floatingOptimized(4, 20) : {})}
                 className="relative bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl p-8 border border-slate-200 dark:border-slate-700"
+                style={{ willChange: animationConfig.enableScrollAnimations ? 'transform' : 'auto' }}
               >
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-2xl opacity-60" />
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-40" />
@@ -320,42 +343,50 @@ export default function EnhancedLandingPage() {
                 </div>
               </motion.div>
 
-              {/* Floating Elements */}
-              <motion.div
-                {...floatingWithRotation(3, 15, 5)}
-                className="absolute -top-8 -left-8 w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-lg flex items-center justify-center"
-              >
-                <Star className="w-10 h-10 text-white" />
-              </motion.div>
+              {/* Floating Elements - Only on desktop with animations */}
+              {animationConfig.enableScrollAnimations && (
+                <>
+                  <motion.div
+                    {...floatingOptimized(3, 15)}
+                    className="absolute -top-8 -left-8 w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-lg flex items-center justify-center"
+                    style={{ willChange: 'transform' }}
+                  >
+                    <Star className="w-10 h-10 text-white" />
+                  </motion.div>
 
-              <motion.div
-                {...floatingWithRotation(4, 15, -5)}
-                transition={{ delay: 0.5 }}
-                className="absolute -bottom-8 -right-8 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg flex items-center justify-center"
-              >
-                <Zap className="w-12 h-12 text-white" />
-              </motion.div>
+                  <motion.div
+                    {...floatingOptimized(4, 15)}
+                    transition={{ delay: 0.5 }}
+                    className="absolute -bottom-8 -right-8 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl shadow-lg flex items-center justify-center"
+                    style={{ willChange: 'transform' }}
+                  >
+                    <Zap className="w-12 h-12 text-white" />
+                  </motion.div>
+                </>
+              )}
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
-        <motion.div
-          {...scrollIndicator}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <ChevronDown className="w-6 h-6 text-slate-400" />
-        </motion.div>
+        {/* Scroll Indicator - Only show with animations enabled */}
+        {animationConfig.shouldAnimate && (
+          <motion.div
+            {...scrollIndicator}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          >
+            <ChevronDown className="w-6 h-6 text-slate-400" />
+          </motion.div>
+        )}
       </section>
 
       {/* Enhanced Features Section */}
       <section id="features" className="py-24 px-4 relative">
         <div className="max-w-7xl mx-auto">
           <motion.div
-            variants={fadeInUp}
+            variants={heroVariant}
             initial="initial"
             whileInView="animate"
-            {...viewportAnimation}
+            {...viewportAnimationOptimized}
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold mb-4">
@@ -419,13 +450,14 @@ export default function EnhancedLandingPage() {
             ].map((feature, i) => (
               <motion.div
                 key={i}
-                variants={fadeInUp}
+                variants={heroVariant}
                 initial="initial"
                 whileInView="animate"
-                {...viewportAnimation}
-                transition={{ delay: i * 0.1 }}
-                {...cardHover(-8)}
+                {...viewportAnimationOptimized}
+                transition={{ delay: (i * 0.1) * animationConfig.durationMultiplier }}
+                {...cardVariant}
                 className="group"
+                style={{ willChange: 'transform, opacity' }}
               >
                 <div className="h-full bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-cyan-500 transition-all shadow-lg hover:shadow-2xl">
                   <div className={`w-16 h-16 ${feature.bgColor} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>

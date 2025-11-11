@@ -1,8 +1,18 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { motion } from 'framer-motion';
 import { Star, Quote } from 'lucide-react';
-import { fadeInUp, cardHover, viewportAnimation } from '@/utils/animationVariants';
+import { 
+  fadeInUp, 
+  cardHover, 
+  viewportAnimationOptimized,
+  getResponsiveVariant,
+  fadeInUpMobile,
+  reducedMotionFadeIn,
+  cardHoverMobile
+} from '@/utils/animationVariants';
+import { useAnimationConfig } from '@/hooks/useReducedMotion';
 
 const testimonials = [
   {
@@ -32,14 +42,26 @@ const testimonials = [
 ];
 
 export default function TestimonialsSection() {
+  const animationConfig = useAnimationConfig();
+  
+  const titleVariant = getResponsiveVariant(
+    animationConfig.shouldSimplify,
+    !animationConfig.shouldAnimate,
+    fadeInUp,
+    fadeInUpMobile,
+    reducedMotionFadeIn
+  );
+
+  const cardVariant = animationConfig.shouldSimplify ? cardHoverMobile : cardHover(-8);
+
   return (
     <section id="testimonials" className="py-24 px-4 bg-slate-900 dark:bg-black">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial="initial"
           whileInView="animate"
-          variants={fadeInUp}
-          {...viewportAnimation}
+          variants={titleVariant}
+          {...viewportAnimationOptimized}
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold mb-4 text-white">
@@ -56,11 +78,12 @@ export default function TestimonialsSection() {
               key={i}
               initial="initial"
               whileInView="animate"
-              variants={fadeInUp}
-              {...viewportAnimation}
-              transition={{ delay: i * 0.1 }}
-              {...cardHover(-8)}
+              variants={titleVariant}
+              {...viewportAnimationOptimized}
+              transition={{ delay: (i * 0.1) * animationConfig.durationMultiplier }}
+              {...cardVariant}
               className="bg-slate-800 rounded-2xl p-8 border border-slate-700 hover:border-cyan-500 transition-all relative"
+              style={{ willChange: 'transform, opacity' }}
             >
               <Quote className="absolute top-4 right-4 w-12 h-12 text-slate-700 opacity-50" />
               

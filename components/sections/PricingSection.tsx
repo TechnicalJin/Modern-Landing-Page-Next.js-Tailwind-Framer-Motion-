@@ -2,7 +2,19 @@
 
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { fadeInUp, cardHover, listItemAnimation, buttonHover, viewportAnimation } from '@/utils/animationVariants';
+import { 
+  fadeInUp, 
+  cardHover, 
+  listItemAnimation, 
+  buttonHover, 
+  viewportAnimationOptimized,
+  getResponsiveVariant,
+  fadeInUpMobile,
+  reducedMotionFadeIn,
+  buttonHoverMobile,
+  cardHoverMobile
+} from '@/utils/animationVariants';
+import { useAnimationConfig } from '@/hooks/useReducedMotion';
 
 const pricingPlans = [
   {
@@ -59,19 +71,39 @@ const pricingPlans = [
 ];
 
 export default function PricingSection() {
+  const animationConfig = useAnimationConfig();
+  
+  // Get responsive variants
+  const titleVariant = getResponsiveVariant(
+    animationConfig.shouldSimplify,
+    !animationConfig.shouldAnimate,
+    fadeInUp,
+    fadeInUpMobile,
+    reducedMotionFadeIn
+  );
+
+  const hoverVariant = animationConfig.shouldSimplify ? buttonHoverMobile : buttonHover;
+  const getCardVariant = (highlighted: boolean) => 
+    animationConfig.shouldSimplify 
+      ? cardHoverMobile 
+      : cardHover(highlighted ? -16 : -12);
+
   return (
     <section id="pricing" className="py-24 px-4 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl" />
-      </div>
+      {/* Background elements - only on desktop with animations */}
+      {animationConfig.enableScrollAnimations && (
+        <div className="absolute top-0 left-0 w-full h-full opacity-30">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl" />
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial="initial"
           whileInView="animate"
-          variants={fadeInUp}
-          {...viewportAnimation}
+          variants={titleVariant}
+          {...viewportAnimationOptimized}
           className="text-center mb-16"
         >
           <h2 className="text-4xl lg:text-5xl font-bold mb-4">
@@ -94,10 +126,11 @@ export default function PricingSection() {
               key={i}
               initial="initial"
               whileInView="animate"
-              variants={fadeInUp}
-              {...viewportAnimation}
-              transition={{ delay: i * 0.1 }}
-              {...cardHover(plan.highlighted ? -16 : -12)}
+              variants={titleVariant}
+              {...viewportAnimationOptimized}
+              transition={{ delay: (i * 0.1) * animationConfig.durationMultiplier }}
+              {...getCardVariant(plan.highlighted)}
+              style={{ willChange: 'transform, opacity' }}
               className={`relative ${plan.highlighted ? 'md:-mt-4 md:mb-4' : ''}`}
             >
               {plan.highlighted && (
@@ -130,8 +163,8 @@ export default function PricingSection() {
                       initial="initial"
                       whileInView="animate"
                       variants={listItemAnimation}
-                      {...viewportAnimation}
-                      transition={{ delay: 0.05 * idx }}
+                      {...viewportAnimationOptimized}
+                      transition={{ delay: (0.05 * idx) * animationConfig.durationMultiplier }}
                       className="flex items-start gap-3"
                     >
                       <div className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${plan.gradient} flex items-center justify-center`}>
@@ -143,7 +176,7 @@ export default function PricingSection() {
                 </ul>
 
                 <motion.button
-                  {...buttonHover}
+                  {...hoverVariant}
                   className={`w-full py-4 rounded-xl font-medium transition-all ${
                     plan.highlighted
                       ? `bg-gradient-to-r ${plan.gradient} text-white shadow-lg hover:shadow-xl`
@@ -160,8 +193,8 @@ export default function PricingSection() {
         <motion.div
           initial="initial"
           whileInView="animate"
-          variants={fadeInUp}
-          {...viewportAnimation}
+          variants={titleVariant}
+          {...viewportAnimationOptimized}
           className="text-center mt-12"
         >
           <p className="text-slate-600 dark:text-slate-400">

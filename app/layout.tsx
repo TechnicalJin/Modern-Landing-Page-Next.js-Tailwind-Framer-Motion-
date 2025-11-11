@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/Toast";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 // Primary font with optimized loading for LCP
 const inter = Inter({
@@ -159,7 +161,15 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-white dark:bg-gray-950 transition-colors loaded`}
       >
-        {children}
+        <ToastProvider position="top-right" maxToasts={5}>
+          <ProgressBar 
+            position="top" 
+            height={3} 
+            color="linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)"
+            smooth={true}
+          />
+          {children}
+        </ToastProvider>
         
         {/* Defer non-critical analytics scripts for better FID */}
         <Script
